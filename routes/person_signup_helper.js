@@ -2,11 +2,8 @@ var contentType = require('../middleware/contentType'),
     ngpvanAPIClient = require('../lib/ngpvanapi-client'),
     osdi = require('../lib/osdi'),
     config = require('../config'),
-    vanRequest = require('../lib/van-request-helper'),
-    auth = require('basic-auth');
-
-
-
+    vanRequest = require('../lib/van-request-helper');
+    
 var vanEndpoint = config.get('vanEndpoint');
 
 function getCredentials(req) {
