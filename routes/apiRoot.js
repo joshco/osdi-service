@@ -70,7 +70,7 @@ function metadataRoot(req, res) {
       },
       'osdi:canvass_response_codes2':     {
         'href': root + 'metadata/canvass_response_codes2',
-        'title': 'An alt representation'
+        'title': 'DONT USE An alt representation'
       }
     }
   };
