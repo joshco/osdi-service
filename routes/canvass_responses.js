@@ -48,7 +48,7 @@ function oneArrayTranslator(res) {
 
   answer.response_codes=res.map(function (rc){
     return {
-      response_code: rc.resultCodeId,
+      response_code: String(rc.resultCodeId),
       name: rc.name
 
     }
