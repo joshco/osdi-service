@@ -67,10 +67,6 @@ function metadataRoot(req, res) {
       'osdi:canvass_response_codes':     {
         'href': root + 'metadata/canvass_response_codes',
         'title': 'The collection of canvass response codes in the system'
-      },
-      'osdi:canvass_response_codes2':     {
-        'href': root + 'metadata/canvass_response_codes2',
-        'title': 'DONT USE An alt representation'
       }
     }
   };
