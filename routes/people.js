@@ -174,11 +174,12 @@ function translateToOSDIPerson(vanPerson) {
   var phoneTypes = [ 'Home', 'Work', 'Cell', 'Mobile', 'Fax' ];
 
   answer.phone_numbers = _.map(vanPerson.phones, function(phone) {
+    var phoneType = (phone.phoneType == 'Cell') ? 'Mobile' : phone.phoneType;
     return {
       primary: phone.isPreferred ? true : false,
       number: valueOrBlank(phone.phoneNumber),
       extension: valueOrBlank(phone.ext),
-      number_type: phone.phoneType
+      number_type: phoneType
 
     };
   });
