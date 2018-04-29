@@ -42,18 +42,20 @@ function translateToMatchCandidate(req) {
     var typeMapping = {
       'Home': 'H',
       'Work': 'W',
-      'Mobile': 'M',
+      'Mobile': 'C',
       'Fax': 'F'
     };
 
-    answer.phone = {};
-    answer.phone.phoneNumber = osdiPerson.phone_numbers[0].number;
-    answer.phone.ext = osdiPerson.phone_numbers[0].extension;
-    answer.phone.isPreferred =
-      osdiPerson.phone_numbers[0].primary ? true : false;
+    answer.phones= _.map(osdiPerson.phone_numbers, function (phone) {
+      var osdiNumberType = typeMapping[phone.number_type];
+      return {
+        phoneNumber: phone.number,
+        ext: phone.extension,
+        isPreferred: phone.primary ? true : false,
+        phoneType: osdiNumberType ? osdiNumberType : null
+      }
+    });
 
-    var osdiNumberType = typeMapping[osdiPerson.phone_numbers[0].number_type];
-    answer.phone.phoneType  = osdiNumberType ? osdiNumberType : null;
   }
 
   if (osdiPerson.postal_addresses && osdiPerson.postal_addresses[0]) {
