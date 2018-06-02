@@ -126,6 +126,7 @@ function translateToOSDIPerson(vanPerson) {
     given_name: valueOrBlank(vanPerson.firstName),
     family_name: valueOrBlank(vanPerson.lastName),
     additional_name: valueOrBlank(vanPerson.middleName),
+    party: valueOrBlank(vanPerson.party),
     _links: {
       self: {
         href: config.get('apiEndpoint') + 'people/' + vanPerson.vanId
