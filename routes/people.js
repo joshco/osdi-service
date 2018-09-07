@@ -3,6 +3,8 @@ var osdi = require('../lib/osdi'),
     bridge = require('../lib/bridge'),
     _ = require('lodash');
 
+var default_expand = ['phones', 'emails', 'addresses', 'externalIds'];
+
 function valueOrBlank(value) {
   var answer = value;
 
@@ -138,6 +140,11 @@ function translateToOSDIPerson(vanPerson) {
     }
   };
 
+  var xidentifiers= _.map(vanPerson.identifiers, function(id){
+    return id.type + ":" + id.externalId;
+  });
+  answer.identifiers=answer.identifiers.concat(xidentifiers);
+
   var addressTypes = [ 'Home', 'Work', 'Mailing' ];
 
   answer.postal_addresses = _.map(vanPerson.addresses, function(address) {
@@ -206,7 +213,7 @@ function signup(req, res) {
       return vanClient.people.applyActivistCodes(vanId, activistCodeIds);
     }).
     then(function() {
-      var expand = ['phones', 'emails', 'addresses'];
+      var expand = osdi.request.getExpands(req,default_expand);
       return vanClient.people.getOne(originalMatchResponse.vanId, expand);
     });
 
@@ -222,7 +229,8 @@ function getOne(req, res) {
     vanId = req.params.id;
   }
 
-  var expand = ['phones', 'emails', 'addresses'];
+
+  var expand = osdi.request.getExpands(req,default_expand);
   var personPromise = vanClient.people.getOne(vanId, expand);
 
   bridge.sendSingleResourceResponse(personPromise, translateToOSDIPerson,

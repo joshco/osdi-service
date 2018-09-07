@@ -14,7 +14,8 @@ var cfg = {
   curieTemplate: process.env.CURIE_TEMPLATE ||
     'http://developers.ngpvan.com/osdi#{rel}',
   node_env: process.env.NODE_ENV || 'development',
-  prettyJSON: (process.env.PRETTY_JSON == 'true' ) || false
+  prettyJSON: (process.env.PRETTY_JSON == 'true' ) || false,
+  trace: (process.env.NET_TRACE=='true') || false
 
 };
 
