@@ -119,7 +119,34 @@ function translateToScriptResponse(req) {
   return answer;
 
 }
+function translateDistrictsToOSDI(districts) {
+  /*
+          "division_info" : [
+                  {
+                    "name": "State",
+                    "divisions": [
+                      {
+                        "id": "OH",
+                        "name": "Ohio",
+                        "ocd_id": "ocd-division/country:us/state:oh"
+                      }
 
+                    ]
+                  },
+   */
+  var divisions=_.map(districts,function(district){
+    return {
+      name: district.name,
+      divisions: _.map(district.districtFieldValues,function(dfv){
+        return {
+          id: dfv.id,
+          name: dfv.name
+        }
+      })
+    }
+  });
+  return divisions;
+}
 function translateToOSDIPerson(vanPerson) {
   var answer = {
     identifiers: [
@@ -128,17 +155,13 @@ function translateToOSDIPerson(vanPerson) {
     given_name: valueOrBlank(vanPerson.firstName),
     family_name: valueOrBlank(vanPerson.lastName),
     additional_name: valueOrBlank(vanPerson.middleName),
-    party: valueOrBlank(vanPerson.party),
-    _links: {
-      self: {
-        href: config.get('apiEndpoint') + 'people/' + vanPerson.vanId
-      },
-      'osdi:record_canvass_helper': {
-        href: config.get('apiEndpoint') +
-          'people/' + vanPerson.vanId + '/record_canvass_helper'
-      }
-    }
+    party: valueOrBlank(vanPerson.party)
+
   };
+
+  if (vanPerson.districts) {
+    answer.division_info=translateDistrictsToOSDI(vanPerson.districts);
+  }
 
   var xidentifiers= _.map(vanPerson.identifiers, function(id){
     return id.type + ":" + id.externalId;
@@ -194,6 +217,15 @@ function translateToOSDIPerson(vanPerson) {
     };
   });
 
+  answer._links= {
+    self: {
+      href: config.get('apiEndpoint') + 'people/' + vanPerson.vanId
+    },
+    'osdi:record_canvass_helper': {
+      href: config.get('apiEndpoint') +
+      'people/' + vanPerson.vanId + '/record_canvass_helper'
+    }
+  }
   osdi.response.addCurie(answer, config.get('curieTemplate'));
 
   return answer;
