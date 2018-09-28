@@ -192,8 +192,7 @@ function translateToOSDIPerson(vanPerson) {
       region: valueOrBlank(address.stateOrProvince),
       postal_code: valueOrBlank(address.zipOrPostalCode),
       country: valueOrBlank(address.countryCode),
-      address_type: _.indexOf(address.type, addressTypes) >= 0 ?
-        address.type : ''
+      address_type: valueOrBlank(address.type)
     };
   });
 
