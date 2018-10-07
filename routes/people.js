@@ -1,7 +1,8 @@
 var osdi = require('../lib/osdi'),
     config = require('../config'),
     bridge = require('../lib/bridge'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    moment = require('moment');
 
 var default_expand = ['phones', 'emails', 'addresses', 'externalIds'];
 
@@ -161,6 +162,15 @@ function translateToOSDIPerson(vanPerson) {
 
   if (vanPerson.districts) {
     answer.division_info=translateDistrictsToOSDI(vanPerson.districts);
+  }
+
+  if (vanPerson.dateOfBirth) {
+    var dob=moment(vanPerson.dateOfBirth);
+    answer.birthdate ={
+      month: dob.month(),
+      day: dob.date(),
+      year: dob.year()
+    }
   }
 
   var xidentifiers= _.map(vanPerson.identifiers, function(id){
