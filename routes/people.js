@@ -2,7 +2,9 @@ var osdi = require('../lib/osdi'),
     config = require('../config'),
     bridge = require('../lib/bridge'),
     _ = require('lodash'),
-    moment = require('moment');
+    moment = require('moment'),
+    selectn = require('selectn');
+
 
 var default_expand = ['phones', 'emails', 'addresses', 'externalIds'];
 
@@ -233,6 +235,9 @@ function translateToOSDIPerson(vanPerson) {
     'osdi:record_canvass_helper': {
       href: config.get('apiEndpoint') +
       'people/' + vanPerson.vanId + '/record_canvass_helper'
+    },
+    'osdi:attendances': {
+      href: config.get('apiEndpoint') + 'people/' + vanPerson.vanId + '/attendances'
     }
   }
   osdi.response.addCurie(answer, config.get('curieTemplate'));
@@ -346,9 +351,76 @@ function canvass(req, res) {
     translateToOSDICanvass, 'people', res);
 }
 
+function getAttendances(req, res) {
+
+  var vanClient = bridge.createClient(req);
+
+  var id = 0;
+  if (req && req.params && req.params.id) {
+    id = req.params.id;
+  }
+
+  var vanPaginationParams = bridge.getVANPaginationParams(req);
+
+
+  var resourcePromise = vanClient.people.getAttendances(id);
+
+  bridge.sendMultiResourceResponse(resourcePromise, vanPaginationParams,
+    oneAttendanceTranslator, 'attendances', res);
+}
+
+
+function oneAttendanceTranslator(vanitem) {
+  var answer = osdi.response.createCommonItem(
+    "Attendance",
+    "");
+
+  var statuses = {
+    'Scheduled': 'accepted',
+    'Confirmed': 'accepted'
+  };
+
+  answer['van:shift'] = {
+    shift_id: selectn('shift.eventShiftId', vanitem),
+    name: selectn('shift.name', vanitem)
+  };
+
+  answer['van:location'] = {
+    location_id: selectn('location.locationId', vanitem),
+    venue: selectn('location.name', vanitem),
+    description: selectn('location.displayName', vanitem)
+  };
+
+  answer['van:role'] = {
+    role_id: selectn('role.roleId', vanitem),
+    name: selectn('role.name', vanitem)
+  };
+
+  answer['van:status'] = {
+    status_id: selectn('status.statusId', vanitem),
+    status_name: selectn('status.name', vanitem),
+  };
+
+  answer['van:person'] = {
+    first_name: selectn('person.firstName', vanitem),
+    last_name: selectn('person.lastName', vanitem),
+    van_id: selectn('person.vanId', vanitem)
+  };
+
+  answer.status = statuses[selectn('status.name', vanitem)] || selectn('status.name', vanitem)
+
+  osdi.response.addIdentifier(answer, 'VAN:' + vanitem.eventSignupId);
+  osdi.response.addSelfLink(answer, 'attendances', vanitem.eventSignupId);
+  osdi.response.addLink(answer, 'osdi:person', 'people/' + vanitem.person.vanId);
+  osdi.response.addLink(answer, 'osdi:event', 'events/' + vanitem.event.eventId);
+  osdi.response.addCurie(answer, config.get('curieTemplate'));
+
+  return answer;
+}
 
 module.exports = function (app) {
   app.get('/api/v1/people/:id', getOne);
   app.post('/api/v1/people/person_signup_helper', signup);
   app.post('/api/v1/people/:id/record_canvass_helper', canvass);
+  app.get('/api/v1/people/:id/attendances', getAttendances);
 };
