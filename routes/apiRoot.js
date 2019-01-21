@@ -40,6 +40,14 @@ function apiRoot(req, res) {
         'href': root + 'events',
         'title': 'The collection of events in the system'
       },
+      'van:groups': {
+        'href': root + 'groups',
+        'title': 'The collections of supporter groups'
+      },
+      'van:group_add_helper': {
+        'href': root + 'groups/add_helper',
+        'title': "The helper to add people to groups"
+      },
       'osdi:metadata': {
         'href': root + 'metadata',
         'title': 'OSDI Metadata'
