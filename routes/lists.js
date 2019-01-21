@@ -20,7 +20,7 @@ function getAll(req, res) {
   var resourcePromise = vanClient.supporterGroups.getMany(    vanPaginationParams.top, vanPaginationParams.skip);
 
   bridge.sendMultiResourceResponse(resourcePromise, vanPaginationParams,
-    oneResourceTranslator, 'van:groups', res);
+    oneResourceTranslator, 'groups', res);
 }
 
 function getOne(req, res) {
