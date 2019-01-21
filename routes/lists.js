@@ -68,12 +68,17 @@ function add_helper(req,res) {
   var vanClient= bridge.createClient(req);
   var vanId=0;
   var sgId=0;
+  var action='add';
 
   if (req && req.body && req.body.van_id && req.body.group_id) {
     vanId=req.body.van_id;
     sgId=req.body.group_id;
+    if (req.body.action) {
+      action=req.body.action;
+    }
   }
-  var sgPromise = vanClient.supporterGroups.addPerson(sgId,vanId);
+
+  var sgPromise = vanClient.supporterGroups.addPerson(sgId,vanId,action);
   bridge.sendSingleResourceResponse(sgPromise,addTranslator, 'groups', res);
 
 }
