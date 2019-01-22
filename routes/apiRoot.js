@@ -42,8 +42,13 @@ function apiRoot(req, res) {
       },
       'osdi:groups': {
         'href': root + 'groups',
-        'title': 'The collections of supporter groups'
+        'title': 'The collections of supporter groups in the system'
       },
+      'osdi:lists': {
+        'href': root + 'groups',
+        'title': 'The collections of lists in the system'
+      },
+
       'osdi:group_add_helper': {
         'href': root + 'groups/add_helper',
         'title': "The helper to add people to groups"
