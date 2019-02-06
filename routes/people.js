@@ -169,7 +169,7 @@ function translateToOSDIPerson(vanPerson) {
   if (vanPerson.dateOfBirth) {
     var dob=moment(vanPerson.dateOfBirth);
     answer.birthdate ={
-      month: dob.month(),
+      month: dob.month() + 1,
       day: dob.date(),
       year: dob.year()
     }
