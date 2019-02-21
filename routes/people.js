@@ -150,7 +150,22 @@ function translateDistrictsToOSDI(districts) {
   });
   return divisions;
 }
+function translateToEmpty(vanPerson) {
+  var answer= {
+    identifiers: [
+      'VAN' + vanPerson.vanId
+    ]
+  };
+  osdi.response.addSelfLink(answer, 'groups', vanPerson.vanId);
+
+  return answer;
+}
+
 function translateToOSDIPerson(vanPerson) {
+  if (vanPerson.return_response==false) {
+    return translateToEmpty(vanPerson);
+  }
+
   var answer = {
     identifiers: [
       'VAN:' + vanPerson.vanId
@@ -251,6 +266,16 @@ function signup(req, res) {
   var matchCandidate = translateToMatchCandidate(req);
   var activistCodeIds = translateToActivistCodes(req);
   var originalMatchResponse = null;
+  var return_response=true;
+
+  if (req.body && req.body['osdi:control']) {
+    var control = req.body['osdi:control'];
+
+    if (control.return_response == false) {
+      return_response = false;
+    }
+  }
+
 
   var personPromise = vanClient.people.findOrCreate(matchCandidate).
     then(function(matchResponse) {
@@ -258,13 +283,19 @@ function signup(req, res) {
       var vanId = matchResponse.vanId;
       return vanClient.people.applyActivistCodes(vanId, activistCodeIds);
     }).
-    then(function() {
-      var expand = osdi.request.getExpands(req,default_expand);
+    then(function () {
+    if (return_response) {
+      var expand = osdi.request.getExpands(req, default_expand);
       return vanClient.people.getOne(originalMatchResponse.vanId, expand);
-    });
+    } else {
+      return {
+        return_response: false,
+        vanId: originalMatchResponse.vanId
+      }
+    }
+  });
 
-  bridge.sendSingleResourceResponse(personPromise, translateToOSDIPerson,
-    'people', res);
+  bridge.sendSingleResourceResponse(personPromise, translateToOSDIPerson,'people', res);
 }
 
 function getOne(req, res) {
