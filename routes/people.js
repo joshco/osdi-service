@@ -89,7 +89,36 @@ function translateToMatchCandidate(req) {
     answer.address.isPreferred = osdiAddress.primary ? true : false;
   }
 
+// * _.forEach({ 'a': 1, 'b': 2 }, function(n, key) {
+//   *   console.log(n, key);
+// //   * });
+//   var re = /api\/v1\/questions\/(.*)$/i;
+//   var questionId = survey_answer.question.match(re)[1];
+  if (osdiPerson.custom_fields) {
+    var cfs=osdiPerson.custom_fields;
+    var num;
+    var re = /^van_([0-9]+)_([0-9]+)\|?(.*)$/i;
+
+    var customFieldValues= _.map(cfs,function(v,k){
+      console.log(k,v);
+      var matches=k.match(re);
+      console.log("RE",matches);
+      if (matches) {
+        return {
+          customFieldId: matches[2],
+          customFieldGroupId: matches[1],
+          assignedValue: v
+        }
+      }
+
+    });
+
+    answer.customFieldValues= customFieldValues;
+
+  }
+
   // intentionally ignoring identifiers for now - bit tricky semantically
+  console.log(answer);
 
   return answer;
 }
@@ -156,7 +185,7 @@ function translateToEmpty(vanPerson) {
       'VAN' + vanPerson.vanId
     ]
   };
-  osdi.response.addSelfLink(answer, 'groups', vanPerson.vanId);
+  osdi.response.addSelfLink(answer, 'people', vanPerson.vanId);
 
   return answer;
 }
@@ -243,6 +272,23 @@ function translateToOSDIPerson(vanPerson) {
     };
   });
 
+//
+// * _.forEach({ 'a': 1, 'b': 2 }, function(n, key) {
+//   *   console.log(n, key);
+//   * });
+  if (vanPerson.customFields) {
+    var custom_fields={};
+    _.forEach(vanPerson.customFields, function(cfi) {
+      var cf=cfi['customField'];
+      var id=cf['customFieldId'];
+      var gid=cf['customFieldGroupId'];
+      var value=cfi['assignedValue'];
+      var label=_.snakeCase(cf['customFieldName']);
+
+      custom_fields['van_' + gid + '_' + id + '|' + label]=value;
+    });
+    answer.custom_fields=custom_fields;
+  }
   answer._links= {
     self: {
       href: config.get('apiEndpoint') + 'people/' + vanPerson.vanId

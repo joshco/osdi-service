@@ -1,3 +1,12 @@
+# joshco changes
+
+* osdi:custom_fields
+* osdi:metadata / response_types
+* osdi:lists == supporter groups
+* osdi:events
+
+(others too.  see a diff between the branches joshco and develop)
+
 
 # OSDI Service Changelog
 

@@ -48,6 +48,10 @@ function apiRoot(req, res) {
         'href': root + 'groups',
         'title': 'The collections of lists in the system'
       },
+      'osdi:custom_fields': {
+        'href': root + 'widgets/custom_fields',
+        'title': "The collection of custom field definitions"
+      },
 
       'osdi:group_add_helper': {
         'href': root + 'groups/add_helper',
