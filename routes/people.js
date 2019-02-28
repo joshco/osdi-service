@@ -100,25 +100,27 @@ function translateToMatchCandidate(req) {
     var re = /^van_([0-9]+)_([0-9]+)\|?(.*)$/i;
 
     var customFieldValues= _.map(cfs,function(v,k){
-      console.log(k,v);
       var matches=k.match(re);
-      console.log("RE",matches);
+
       if (matches) {
         return {
           customFieldId: matches[2],
           customFieldGroupId: matches[1],
           assignedValue: v
         }
+      } else {
+        return {};
       }
 
     });
+    customFieldValues= _.reject(customFieldValues, function(cf) { return _.isEmpty(cf )});
 
     answer.customFieldValues= customFieldValues;
 
   }
 
   // intentionally ignoring identifiers for now - bit tricky semantically
-  console.log(answer);
+  //console.log(answer);
 
   return answer;
 }
@@ -185,7 +187,7 @@ function translateToEmpty(vanPerson) {
       'VAN' + vanPerson.vanId
     ]
   };
-  
+
   osdi.response.addSelfLink(answer, 'people', vanPerson.vanId);
   osdi.response.addLink(answer, 'osdi:attendances', 'people/' + vanPerson.vanId + '/attendances');
   osdi.response.addCurie(answer, config.get('curieTemplate'));
