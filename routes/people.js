@@ -185,8 +185,10 @@ function translateToEmpty(vanPerson) {
       'VAN' + vanPerson.vanId
     ]
   };
+  
   osdi.response.addSelfLink(answer, 'people', vanPerson.vanId);
-
+  osdi.response.addLink(answer, 'osdi:attendances', 'people/' + vanPerson.vanId + '/attendances');
+  osdi.response.addCurie(answer, config.get('curieTemplate'));
   return answer;
 }
 
