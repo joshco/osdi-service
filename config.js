@@ -13,9 +13,9 @@ var cfg = {
   requireHttps: process.env.REQUIRE_HTTPS || false,
   curieTemplate: process.env.CURIE_TEMPLATE ||
     'http://developers.ngpvan.com/osdi#{rel}',
-  node_env: process.env.NODE_ENV || 'development',
-  prettyJSON: (process.env.PRETTY_JSON == 'true' ) || false,
-  trace: (process.env.NET_TRACE=='true') || false
+  trace: (process.env.NET_TRACE=='true') || false,
+  node_env: process.env.NODE_ENV || 'production',
+  prettyJSON: (process.env.PRETTY_JSON == 'true' ) || false
 
 };
 
