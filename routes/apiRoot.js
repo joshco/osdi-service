@@ -40,23 +40,6 @@ function apiRoot(req, res) {
         'href': root + 'events',
         'title': 'The collection of events in the system'
       },
-      'osdi:groups': {
-        'href': root + 'groups',
-        'title': 'The collections of supporter groups in the system'
-      },
-      'osdi:lists': {
-        'href': root + 'groups',
-        'title': 'The collections of lists in the system'
-      },
-      'osdi:custom_fields': {
-        'href': root + 'widgets/custom_fields',
-        'title': "The collection of custom field definitions"
-      },
-
-      'osdi:group_add_helper': {
-        'href': root + 'groups/add_helper',
-        'title': "The helper to add people to groups"
-      },
       'osdi:metadata': {
         'href': root + 'metadata',
         'title': 'OSDI Metadata'
@@ -84,6 +67,10 @@ function metadataRoot(req, res) {
       'osdi:canvass_response_codes':     {
         'href': root + 'metadata/canvass_response_codes',
         'title': 'The collection of canvass response codes in the system'
+      },
+      'osdi:custom_fields': {
+        href: root + 'metadata/custom_fields',
+        title: 'The set of custom fields in the system'
       }
     }
   };
