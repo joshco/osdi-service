@@ -286,8 +286,14 @@ function translateToOSDIPerson(vanPerson) {
       var cf=cfi['customField'];
       var id=cf['customFieldId'];
       var gid=cf['customFieldGroupId'];
-      var value=cfi['assignedValue'];
+
       var label=_.snakeCase(cf['customFieldName']);
+
+      var value=cfi['assignedValue'];
+
+      if (cf['customFieldTypeId']=='B') {
+        value= value=="true" ? true : false
+      }
 
       custom_fields['van_' + gid + '_' + id + '|' + label]=value;
     });
