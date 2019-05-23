@@ -6,7 +6,7 @@ var osdi = require('../lib/osdi'),
     selectn = require('selectn');
 
 
-var default_expand = ['phones', 'emails', 'addresses', 'externalIds'];
+var default_expand = ['phones', 'emails', 'addresses', 'externalIds', 'customFields'];
 
 function valueOrBlank(value) {
   var answer = value;
