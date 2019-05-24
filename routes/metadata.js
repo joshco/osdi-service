@@ -67,7 +67,8 @@ function customFieldTranslator(res) {
     "D": "datetime",
     "T": "string",
     "B": "boolean",
-    "M": "number"
+    "M": "number",
+    "S": "SingleChoice"
 
   };
 
@@ -89,6 +90,15 @@ function customFieldTranslator(res) {
     resource_type: resource_type
   };
 
+  if (field_type == "SingleChoice") {
+    var responses= _.map(res.availableValues, function(value) {
+      return {
+        key: value.id,
+        name: value.name
+      }
+    })
+    answer.responses=responses;
+  }
   return answer;
 }
 
