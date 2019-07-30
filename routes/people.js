@@ -28,7 +28,9 @@ function translateToMatchCandidate(req) {
   var answer = {
     firstName: osdiPerson.given_name,
     middleName: valueOrBlank(osdiPerson.additional_name),
-    lastName: valueOrBlank(osdiPerson.family_name)
+    lastName: valueOrBlank(osdiPerson.family_name),
+    title: valueOrBlank(osdiPerson.honorific_prefix),
+    suffix: valueOrBlank(osdiPerson.honorific_suffix)
   };
 
 
@@ -129,7 +131,7 @@ function translateToMatchCandidate(req) {
   }
 
   // intentionally ignoring identifiers for now - bit tricky semantically
-  console.log(answer);
+  //console.log(answer);
 
   return answer;
 }
