@@ -27,20 +27,23 @@ function translateToMatchCandidate(req) {
   }
   var answer = {
     firstName: osdiPerson.given_name,
-    middleName: osdiPerson.additional_name,
-    lastName: osdiPerson.family_name,
+    middleName: valueOrBlank(osdiPerson.additional_name),
+    lastName: valueOrBlank(osdiPerson.family_name)
   };
 
+
   if (osdiPerson.email_addresses && osdiPerson.email_addresses[0]) {
-    answer.email = {};
-    answer.email.email = osdiPerson.email_addresses[0].address;
-    var isPreferred = false;
+    answer.emails = _.map(osdiPerson.email_addresses, function(osdiEmail){
+      var vanEmail={
+        email: osdiEmail.address
+      }
 
-    if (osdiPerson.email_addresses[0].primary) {
-      isPreferred = true;
-    }
+      if (osdiEmail.primary) {
+        vanEmail.isPreferred = true;
+      }
 
-    answer.email.isPreferred = isPreferred;
+      return vanEmail;
+    });
   }
 
   if (osdiPerson.phone_numbers && osdiPerson.phone_numbers[0]) {
@@ -63,31 +66,37 @@ function translateToMatchCandidate(req) {
 
   }
 
+
   if (osdiPerson.postal_addresses && osdiPerson.postal_addresses[0]) {
-    var osdiAddress = osdiPerson.postal_addresses[0];
+
     var addressTypeMapping = {
       'Home': 'H',
       'Work': 'W',
-      'Mailing': 'M'
+      'Mailing': 'M',
+      'Custom': 'C'
     };
 
-    answer.address = {};
+    answer.addresses = _.map(osdiPerson.postal_addresses, function(osdiAddress) {
+      var vanAddress={};
 
-    if (osdiAddress.address_lines) {
-      answer.address.addressLine1 = osdiAddress.address_lines[0];
-      answer.address.addressLine2 = osdiAddress.address_lines[1];
-      answer.address.addressLine3 = osdiAddress.address_lines[2];
-    }
+      if (osdiAddress.address_lines) {
+        vanAddress.addressLine1 = osdiAddress.address_lines[0];
+        vanAddress.addressLine2 = valueOrBlank(osdiAddress.address_lines[1]);
+        vanAddress.addressLine3 = valueOrBlank(osdiAddress.address_lines[2]);
+      }
 
-    answer.address.city = osdiAddress.locality;
-    answer.address.stateOrProvince = osdiAddress.region;
-    answer.address.zipOrPostalCode = osdiAddress.postal_code;
-    answer.address.countryCode = osdiAddress.country;
+      vanAddress.city = osdiAddress.locality;
+      vanAddress.stateOrProvince = osdiAddress.region;
+      vanAddress.zipOrPostalCode = osdiAddress.postal_code;
+      vanAddress.countryCode = osdiAddress.country;
 
-    var osdiAddressType = addressTypeMapping[osdiAddress.address_type];
-    answer.address.address_type = osdiAddressType ? osdiAddressType : null;
-    answer.address.isPreferred = osdiAddress.primary ? true : false;
+      var osdiAddressType = addressTypeMapping[osdiAddress.address_type];
+      vanAddress.address_type = osdiAddressType ? osdiAddressType : null;
+      vanAddress.isPreferred = osdiAddress.primary ? true : false;
+      return vanAddress
+    });
   }
+
 
 // * _.forEach({ 'a': 1, 'b': 2 }, function(n, key) {
 //   *   console.log(n, key);
@@ -120,7 +129,7 @@ function translateToMatchCandidate(req) {
   }
 
   // intentionally ignoring identifiers for now - bit tricky semantically
-  //console.log(answer);
+  console.log(answer);
 
   return answer;
 }
