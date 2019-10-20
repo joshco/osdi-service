@@ -1,6 +1,6 @@
 var config = require('../config'),
   osdi = require('../lib/osdi'),
-  ngpvanAPIClient = require('../lib/ngpvan-api-client'),  
+  ngpvanAPIClient = require('../lib/ngpvan-api-client'),
   _ = require('lodash'),
   bridge = require('../lib/bridge'),
   selectn = require('selectn');
@@ -175,7 +175,57 @@ function valueOrBlank(value) {
   return answer;
 }
 
-function recordAttendance(req, res) {
+function recordAttendance(req,res) {
+
+  if (_.all([
+    req.body,
+    req.body.person,
+    req.body.person.identifiers,
+    req.body.person.identifiers[0],
+    _.include(req.body.person.identifiers[0],'VAN')
+  ])) {
+   return recordAttendanceQuick(req, res)
+  } else {
+    return recordAttendanceNormal(req,res)
+  }
+}
+
+function recordAttendanceQuick(req, res) {
+  var vanClient = bridge.createClient(req);
+
+  var identifier = req.body.person.identifiers[0];
+  var vanId = identifier.split(':')[1];
+  var eventId = req.params.id;
+
+  console.log("QUICK SIGNUP ".concat(vanId, " ev ", eventId));
+
+  var signup = {
+    "person": {
+      "vanId": vanId
+    },
+    "event": {
+      "eventId": eventId
+    },
+    "status": {
+      "statusId": req.body['van:status_id'] || selectn('van:status.status_id',req.body)
+    },
+    "shift": {
+      "eventShiftId": req.body['van:shift_id'] || selectn('van:shift.shift_id',req.body)
+    },
+    "role": {
+      "roleId": req.body['van:role_id'] || selectn('van:role.role_id',req.body)
+    },
+    "location": {
+      "locationId": req.body['van:location_id'] || selectn('van:location.location_id',req.body)
+    }
+
+  };
+  var resourcePromise= vanClient.events.recordAttendance(signup);
+  bridge.sendCreatedResponse(resourcePromise,'attendances',res)
+
+}
+
+function recordAttendanceNormal(req, res) {
   var vanClient = bridge.createClient(req);
 
   var matchCandidate = osdi.translator.osdiHelperToVANMatchCandidate(req);
@@ -328,9 +378,70 @@ function signupPersonTranslator(vanitem) {
   return answer;
 
 }
+
+function createEvent(req,res) {
+  var vanClient = bridge.createClient(req);
+
+  var osdiEvent = req.body
+
+  var root = config.get('apiEndpoint');
+  var vanEvent=osdiToEventTranslator(osdiEvent);
+
+  var sresourcePromise = new Promise(function(resolve,reject){
+
+
+    resolve('1233')
+  })
+
+  var resourcePromise = vanClient.events.create(vanEvent)
+
+  bridge.sendCreatedResponse(resourcePromise,'events',res)
+
+}
+
+
+function osdiToEventTranslator(osdi) {
+  var vanEvent={
+    name: osdi.title,
+    shortName: osdi.name.substr(0,12),
+    startDate: osdi.start_date,
+    endDate: osdi.end_date,
+    eventType: {
+      eventTypeId: osdi['van:event_type_id']
+    },
+    roles: _.map(osdi['van:roles'] || [], function(role){
+      return {
+        roleId: role['role_id']
+      }
+    }),
+    "isOnlyEditableByCreatingUser": false
+
+  };
+
+  if ( osdi['van:shifts'] ) {
+    vanEvent['shifts'] = _.map(osdi['van:shifts'] || [], function(shift) {
+      return {
+        name: shift['name'],
+        startTime: shift.start_date,
+        endTime: shift.end_date
+      }
+    })
+  } else {
+    vanEvent['shifts'] = [
+      {
+        name: 'first',
+        startTime: osdi.start_date,
+        endTime: osdi.end_date
+      }
+    ]
+  }
+  return vanEvent
+}
+
 module.exports = function (app) {
   app.get('/api/v1/events', getAll);
   app.get('/api/v1/events/:id', getOne);
+  app.post('/api/v1/events', createEvent);
   app.post('/api/v1/events/:id/record_attendance_helper', recordAttendance);
   app.get('/api/v1/events/:id/attendances', getAttendances);
   app.get('/api/v1/attendances/:id', getAttendance);
