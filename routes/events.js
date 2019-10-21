@@ -154,6 +154,9 @@ function oneResourceTranslator(vanitem) {
 
   answer['van:voter_registration_batches'] = vanitem.voterRegistrationBatches;
   answer['van:district_field_value'] = vanitem.districtFieldValue;
+  answer['van:event_type'] = {
+    event_type_id: selectn('eventType.eventTypeId',vanitem)
+  }
 
   osdi.response.addIdentifier(answer, 'VAN:' + vanitem.eventId);
   osdi.response.addSelfLink(answer, 'events', vanitem.eventId);
@@ -402,12 +405,12 @@ function createEvent(req,res) {
 
 function osdiToEventTranslator(osdi) {
   var vanEvent={
-    name: osdi.title,
+    name: osdi.title || osdi.name,
     shortName: osdi.name.substr(0,12),
     startDate: osdi.start_date,
     endDate: osdi.end_date,
     eventType: {
-      eventTypeId: osdi['van:event_type_id']
+      eventTypeId: osdi['van:event_type_id'] || selectn(['van:event_type','event_type_id'], osdi)
     },
     roles: _.map(osdi['van:roles'] || [], function(role){
       return {
@@ -435,6 +438,7 @@ function osdiToEventTranslator(osdi) {
       }
     ]
   }
+  console.info(vanEvent)
   return vanEvent
 }
 
