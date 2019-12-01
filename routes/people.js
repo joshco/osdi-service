@@ -99,9 +99,18 @@ function translateToActivistCodes(req) {
 
 function translateToScriptResponse(req) {
   var answer = [];
+  var responses=null;
+
+  if (req && req.body && req.body.add_questions_responses_uri) {
+    responses=req.body.add_questions_responses_uri;
+  }
 
   if (req && req.body && req.body.add_answers) {
-    answer = _.map(req.body.add_answers, function(survey_answer) {
+    responses = req.body.add_answers;
+  }
+
+  if (responses) {
+    answer = _.map(responses, function(survey_answer) {
       var re = /api\/v1\/questions\/(.*)$/i;
       var questionId = survey_answer.question.match(re)[1];
 
